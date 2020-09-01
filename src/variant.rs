@@ -143,6 +143,24 @@ impl Variant {
         }
     }
 
+    /// Tries to extract a `Vec<GString>`.
+    ///
+    /// Returns `Some` if the variant has a string array type (`as` type
+    /// string).
+    pub fn get_strv(&self) -> Option<Vec<GString>> {
+        unsafe {
+            if self.type_().to_str() == "as" {
+                let ret = FromGlibPtrContainer::from_glib_container(glib_sys::g_variant_get_strv(
+                    self.to_glib_none().0,
+                    std::ptr::null_mut(),
+                ));
+                Some(ret)
+            } else {
+                None
+            }
+        }
+    }
+
     /// Constructs a new serialised-mode GVariant instance.
     pub fn from_bytes<T: StaticVariantType>(bytes: &Bytes) -> Self {
         unsafe {
